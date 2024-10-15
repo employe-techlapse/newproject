@@ -17,7 +17,7 @@ jobs:
       - name: Install doctl
         uses: digitalocean/action-doctl@v2
         with:
-          token: ${{ secrets.DO_API_TOKEN_KEY }}
+          token: ${{ secrets.DO_API_TOKEN_KEY }}  # Ensure this secret is correctly set up
 
       # Log in to DigitalOcean Container Registry
       - name: Log in to DigitalOcean Container Registry
