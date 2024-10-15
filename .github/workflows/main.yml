@@ -1,0 +1,27 @@
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DO_API_TOKEN_KEY }}
+
+      - name: Log in to DigitalOcean Container Registry
+        run: doctl registry login --expiry-seconds 1200
+
+      - name: Build container image
+        working-directory: ./web
+        run: |
+          docker build -f Dockerfile \
+            -t registry.digitalocean.com/your_registry_name/django-app:latest \
+            -t registry.digitalocean.com/your_registry_name/django-app:${{ github.sha }} .
+
+      - name: Push image to DigitalOcean
+        run: |
+          docker push registry.digitalocean.com/your_registry_name/django-app:latest
+          docker push registry.digitalocean.com/your_registry_name/django-app:${{ github.sha }}
