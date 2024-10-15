@@ -1,3 +1,10 @@
+name: Build and Push Django App
+
+on:
+  push:
+    branches:
+      - main  # This triggers the workflow on a push to the 'main' branch
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -6,22 +13,26 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      # Install DigitalOcean CLI (doctl)
       - name: Install doctl
         uses: digitalocean/action-doctl@v2
         with:
           token: ${{ secrets.DO_API_TOKEN_KEY }}
 
+      # Log in to DigitalOcean Container Registry
       - name: Log in to DigitalOcean Container Registry
         run: doctl registry login --expiry-seconds 1200
 
+      # Build the Docker container image
       - name: Build container image
-        working-directory: ./web
+        working-directory: ./web  # Make sure Dockerfile is in the './web' directory
         run: |
           docker build -f Dockerfile \
-            -t registry.digitalocean.com/your_registry_name/django-app:latest \
-            -t registry.digitalocean.com/your_registry_name/django-app:${{ github.sha }} .
+            -t registry.digitalocean.com/newproject/django-app:latest \
+            -t registry.digitalocean.com/newproject/django-app:${{ github.sha }} .
 
-      - name: Push image to DigitalOcean
+      # Push the container image to DigitalOcean
+      - name: Push image to DigitalOcean Container Registry
         run: |
-          docker push registry.digitalocean.com/your_registry_name/django-app:latest
-          docker push registry.digitalocean.com/your_registry_name/django-app:${{ github.sha }}
+          docker push registry.digitalocean.com/newproject/django-app:latest
+          docker push registry.digitalocean.com/newproject/django-app:${{ github.sha }}
